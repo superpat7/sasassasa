@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .login-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 300px;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            text-align: left;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #007BFF;
+            color: white;
+            padding: 10px;
+            border: none;
+            width: 100%;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 5px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .error-message {
+            color: red;
+            margin-top: 10px;
+        }
+
+        .forgot-password {
+            background-color: gray;
+        }
+
+        .forgot-password:hover {
+            background-color: darkgray;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <form id="loginForm">
+            <h2>Login</h2>
+            <label for="username">Username:</label>
+            <input type="text" id="username" required>
+            
+            <label for="password">Password:</label>
+            <input type="password" id="password" required>
+            
+            <button type="submit" id="loginBtn">Login</button>
+            <button type="button" id="forgotPassBtn" class="forgot-password">Forgot Password?</button>
+            <p class="error-message" id="error-message"></p>
+        </form>
+    </div>
+
+    <script>
+        let attempts = 3; // Maximum attempts
+        let lockoutTime = 10; // 10 seconds lockout
+
+        function getStoredPassword() {
+            return localStorage.getItem("password") || "admin123"; 
+        }
+
+        function getStoredUsername() {
+            return localStorage.getItem("username") || "admin123"; 
+        }
+
+        document.getElementById("loginForm").addEventListener("submit", function(event) {
+            event.preventDefault(); // Prevent form submission
+
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+            const errorMessage = document.getElementById("error-message");
+            const loginBtn = document.getElementById("loginBtn");
+
+            let storedPassword = getStoredPassword();
+            let storedUsername = getStoredUsername();
+
+            if (username === storedUsername && password === storedPassword) {
+                localStorage.setItem("loggedIn", "true"); // Save login status
+                window.location.href = "file:///D:/Pajayonweb/index.html" //D:/Pajayonweb/index.html""; // Redirect sa homepage
+            } else {
+                attempts--; 
+                if (attempts > 0) {
+                    errorMessage.textContent = "Incorrect username or password. ${attempts} attempts left.";
+                } else {
+                    errorMessage.textContent = "Too many failed attempts. Please wait ${lockoutTime} seconds.";
+                    loginBtn.disabled = true; // Disable login button
+                    
+                    let countdown = lockoutTime;
+                    const timer = setInterval(() => {
+                        errorMessage.textContent = "Too many failed attempts. Please wait 10 seconds.";
+                        countdown--;
+
+                        if (countdown < 0) {
+                            clearInterval(timer);
+                            attempts = 3; // Reset attempts
+                            errorMessage.textContent = "";
+                            loginBtn.disabled = false; // Enable login button
+                        }
+                    }, 1000);
+                }
+            }
+        });
+
+        // Forgot Password Functionality
+        document.getElementById("forgotPassBtn").addEventListener("click", function() {
+            const newPassword = prompt("Enter your new password:");
+            if (newPassword) {
+                localStorage.setItem("password", newPassword); // Save new password
+                alert("Password successfully changed! You can now login with the new password.");
+            }
+        });
+    </script>
+</body>
+</html>
